@@ -1,12 +1,13 @@
 package main
 
 import (
-	"UniProxy/conf"
-	"UniProxy/proxy"
-	"UniProxy/router"
 	"flag"
-	log "github.com/sirupsen/logrus"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/wyx2685/UniProxy/conf"
+	"github.com/wyx2685/UniProxy/proxy"
+	"github.com/wyx2685/UniProxy/router"
 )
 
 var host = flag.String("host", "127.0.0.1", "host")

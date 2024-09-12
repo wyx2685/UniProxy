@@ -1,12 +1,13 @@
 package router
 
 import (
-	"UniProxy/conf"
-	"UniProxy/geo"
-	"UniProxy/handle"
-	"UniProxy/middleware"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/wyx2685/UniProxy/conf"
+	"github.com/wyx2685/UniProxy/geo"
+	"github.com/wyx2685/UniProxy/handle"
+	"github.com/wyx2685/UniProxy/middleware"
 )
 
 var engine *gin.Engine

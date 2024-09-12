@@ -5,7 +5,8 @@ import (
 )
 
 func TestGetServers(t *testing.T) {
-	Init("http://127.0.0.1", "xxxxxxxxx")
+	var url []string
+	url = append(url, "http://127.0.0.1")
+	Init("", url, "xxxxxxxxx")
 	t.Log(GetServers())
-
 }

@@ -1,14 +1,15 @@
 package handle
 
 import (
-	"UniProxy/common/balance"
-	"UniProxy/conf"
-	"UniProxy/proxy"
-	"UniProxy/v2b"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"path"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+	"github.com/wyx2685/UniProxy/common/balance"
+	"github.com/wyx2685/UniProxy/conf"
+	"github.com/wyx2685/UniProxy/proxy"
+	"github.com/wyx2685/UniProxy/v2b"
 )
 
 type initParamsRequest struct {

@@ -1,9 +1,9 @@
 package handle
 
 import (
-	"UniProxy/proxy"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"github.com/wyx2685/UniProxy/proxy"
 )
 
 type StartUniProxyRequest struct {

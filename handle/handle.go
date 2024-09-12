@@ -1,15 +1,16 @@
 package handle
 
 import (
-	"UniProxy/common/balance"
-	"UniProxy/conf"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+	"github.com/wyx2685/UniProxy/common/balance"
+	"github.com/wyx2685/UniProxy/conf"
 )
 
 var urlBalance *balance.List[string]

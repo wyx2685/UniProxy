@@ -1,12 +1,13 @@
 package v2b
 
 import (
-	"UniProxy/common/balance"
 	"encoding/json"
 	"errors"
+	"time"
+
 	"github.com/avast/retry-go/v4"
 	"github.com/go-resty/resty/v2"
-	"time"
+	"github.com/wyx2685/UniProxy/common/balance"
 )
 
 var (

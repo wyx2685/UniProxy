@@ -1,7 +1,7 @@
 package main
 
 import (
-	"UniProxy/common/sysproxy"
+	"github.com/wyx2685/UniProxy/common/sysproxy"
 )
 
 func main() {

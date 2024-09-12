@@ -1,10 +1,11 @@
 package proxy
 
 import (
-	"UniProxy/common/sysproxy"
-	"UniProxy/v2b"
 	"context"
+
 	box "github.com/sagernet/sing-box"
+	"github.com/wyx2685/UniProxy/common/sysproxy"
+	"github.com/wyx2685/UniProxy/v2b"
 )
 
 var (

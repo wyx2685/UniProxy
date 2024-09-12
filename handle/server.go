@@ -1,11 +1,12 @@
 package handle
 
 import (
-	"UniProxy/v2b"
 	"fmt"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"time"
+	"github.com/wyx2685/UniProxy/v2b"
 )
 
 var servers map[string]*v2b.ServerInfo

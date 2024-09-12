@@ -1,19 +1,20 @@
 package proxy
 
 import (
-	"UniProxy/common/file"
-	"UniProxy/geo"
-	"UniProxy/v2b"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	C "github.com/sagernet/sing-box/constant"
-	"github.com/sagernet/sing-box/option"
 	"net/netip"
 	"net/url"
 	"os"
 	"path"
 	"strconv"
+
+	C "github.com/sagernet/sing-box/constant"
+	"github.com/sagernet/sing-box/option"
+	"github.com/wyx2685/UniProxy/common/file"
+	"github.com/wyx2685/UniProxy/geo"
+	"github.com/wyx2685/UniProxy/v2b"
 )
 
 func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, error) {
