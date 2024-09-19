@@ -1,7 +1,9 @@
 package proxy
 
 import (
+	"crypto/md5"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/netip"
@@ -80,7 +82,7 @@ func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, erro
 			transport.GRPCOptions.ServiceName = server.ServerName
 		}
 		out = option.Outbound{
-			Tag:  "p",
+			Tag:  "v2ray",
 			Type: server.Type,
 		}
 		if server.Type == "vmess" {
@@ -116,11 +118,11 @@ func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, erro
 			case 2:
 				out.VLESSOptions.TLS = &option.OutboundTLSOptions{
 					Enabled:    true,
-					ServerName: server.TlsSettings.RealityDest,
-					Insecure:   true,
+					ServerName: server.TlsSettings.ServerName,
+					Insecure:   server.TlsSettings.AllowInsecure == "1",
 					UTLS: &option.OutboundUTLSOptions{
 						Enabled:     true,
-						Fingerprint: "chrome",
+						Fingerprint: server.TlsSettings.Fingerprint,
 					},
 					Reality: &option.OutboundRealityOptions{
 						Enabled:   true,
@@ -135,18 +137,20 @@ func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, erro
 		switch server.Cipher {
 		case "2022-blake3-aes-128-gcm":
 			keyLength = 16
-		case "2022-blake3-aes-256-gcm":
+		case "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305":
 			keyLength = 32
 		}
 		var pw string
 		if keyLength != 0 {
-			pw = base64.StdEncoding.EncodeToString([]byte(uuid[:keyLength]))
+			createdAtString := strconv.Itoa(server.CreatedAt)
+			hash := md5.Sum([]byte(createdAtString))
+			pw = base64.StdEncoding.EncodeToString([]byte(hex.EncodeToString(hash[:])[:keyLength])) + ":" + base64.StdEncoding.EncodeToString([]byte(uuid[:keyLength]))
 		} else {
 			pw = uuid
 		}
 		out = option.Outbound{
 			Type: "shadowsocks",
-			Tag:  "p",
+			Tag:  "ss",
 			ShadowsocksOptions: option.ShadowsocksOutboundOptions{
 				ServerOptions: so,
 				Password:      pw,
@@ -154,40 +158,94 @@ func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, erro
 			},
 		}
 	case "trojan":
+		transport := &option.V2RayTransportOptions{
+			Type: server.Network,
+		}
+		switch transport.Type {
+		case "tcp", "":
+			transport.Type = ""
+		case "http":
+		case "ws":
+			var u *url.URL
+			u, err := url.Parse(server.NetworkSettings.Path)
+			if err != nil {
+				return option.Options{}, err
+			}
+			ed, _ := strconv.Atoi(u.Query().Get("ed"))
+			transport.WebsocketOptions.EarlyDataHeaderName = "Sec-WebSocket-Protocol"
+			transport.WebsocketOptions.MaxEarlyData = uint32(ed)
+			transport.WebsocketOptions.Path = u.Path
+		case "grpc":
+			transport.GRPCOptions.ServiceName = server.ServerName
+		}
 		out = option.Outbound{
 			Type: "trojan",
-			Tag:  "p",
+			Tag:  "trojan",
 			TrojanOptions: option.TrojanOutboundOptions{
 				ServerOptions: so,
 				Password:      uuid,
+				Transport:     transport,
 			},
 		}
+
 		if server.Tls != 0 {
 			out.TrojanOptions.TLS = &option.OutboundTLSOptions{
 				Enabled:    true,
 				ServerName: server.ServerName,
-				Insecure:   server.TlsSettings.AllowInsecure != "0",
+				Insecure:   server.Allow_Insecure == 1,
 			}
 		}
 	case "hysteria":
-		out = option.Outbound{
-			Tag:  "p",
-			Type: "hysteria",
-			HysteriaOptions: option.HysteriaOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     server.Host,
-					ServerPort: uint16(server.Port),
+		if server.HysteriaVersion == 2 {
+			var obfs *option.Hysteria2Obfs
+			if server.Hy2Obfs != "" && server.Hy2ObfsPassword != "" {
+				obfs = &option.Hysteria2Obfs{
+					Type:     server.Hy2Obfs,
+					Password: server.Hy2ObfsPassword,
+				}
+			} else if server.Hy2Obfs != "" {
+				obfs = &option.Hysteria2Obfs{
+					Type:     "salamander",
+					Password: server.Hy2Obfs,
+				}
+			}
+			out = option.Outbound{
+				Tag: "hy2",
+				Type: "hysteria2",
+				Hysteria2Options: option.Hysteria2OutboundOptions{
+					ServerOptions: option.ServerOptions{
+						Server:     server.Host,
+						ServerPort: uint16(server.Port),
+					},
+					Obfs: obfs,
+					Password: uuid,
 				},
-				UpMbps:     server.UpMbps,
-				DownMbps:   server.DownMbps,
-				Obfs:       server.ServerKey,
-				AuthString: uuid,
-			},
-		}
-		out.HysteriaOptions.TLS = &option.OutboundTLSOptions{
-			Enabled:    true,
-			Insecure:   server.AllowInsecure != 0,
-			ServerName: server.ServerName,
+			}
+			out.Hysteria2Options.TLS = &option.OutboundTLSOptions{
+				Enabled:    true,
+				Insecure:   server.AllowInsecure == 1,
+				ServerName: server.ServerName,
+			}
+		} else if server.HysteriaVersion == 1 {
+			out = option.Outbound{
+				Tag:  "hy1",
+				Type: "hysteria",
+				HysteriaOptions: option.HysteriaOutboundOptions{
+					ServerOptions: option.ServerOptions{
+						Server:     server.Host,
+						ServerPort: uint16(server.Port),
+					},
+					UpMbps:     server.UpMbps,
+					DownMbps:   server.DownMbps,
+					Obfs:       server.ServerKey,
+					AuthString: uuid,
+				},
+			}
+			out.HysteriaOptions.TLS = &option.OutboundTLSOptions{
+				Enabled:    true,
+				Insecure:   server.AllowInsecure == 1,
+				ServerName: server.ServerName,
+			}
 		}
 	default:
 		return option.Options{}, errors.New("server type is unknown")

@@ -17,3 +17,9 @@ GOOS=windows GOARCH=386 go build -v -o ../../output/win32-x64/reset.exe -ldflags
 
 cd ../unielevate || exit
 GOOS=windows GOARCH=386 go build -v -o ../../output/win32-x64/elevate.exe -ldflags '-s -w' -gcflags="all=-trimpath=${PWD}" -asmflags="all=-trimpath=${PWD}"
+
+cd ../../../Tidalab-Unpack/libs || exit
+rm -r darwin-* geo win*
+
+cd ../../UniProxy || exit
+cp -r output/* ../Tidalab-Unpack/libs/
