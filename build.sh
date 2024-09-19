@@ -1,5 +1,5 @@
 export CGO_ENABLED=0
-
+mkdir -p output/geo
 wget https://github.com/SagerNet/sing-geosite/releases/latest/download/geosite.db -O output/geo/geosite.db
 wget https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db -O output/geo/geoip.db
 
@@ -17,9 +17,3 @@ GOOS=windows GOARCH=386 go build -v -o ../../output/win32-x64/reset.exe -ldflags
 
 cd ../unielevate || exit
 GOOS=windows GOARCH=386 go build -v -o ../../output/win32-x64/elevate.exe -ldflags '-s -w' -gcflags="all=-trimpath=${PWD}" -asmflags="all=-trimpath=${PWD}"
-
-cd ../../../Tidalab-Unpack/libs || exit
-rm -r darwin-* geo win*
-
-cd ../../UniProxy || exit
-cp -r output/* ../Tidalab-Unpack/libs/

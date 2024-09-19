@@ -256,8 +256,8 @@ func GetSingBoxConfig(uuid string, server *v2b.ServerInfo) (option.Options, erro
 	}
 	return option.Options{
 		Log: &option.LogOptions{
-			Level: "debug",
-			Output: path.Join(DataPath, "proxy.log"),
+			Level: "error",
+			//Output: path.Join(DataPath, "proxy.log"),
 		},
 		Inbounds: []option.Inbound{
 			in,
