@@ -47,7 +47,7 @@ jobs:
           ./libs.zip
           
     - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v4
+      uses: svenstaro/upload-release-action@v3
       if: github.event_name == 'release'
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
